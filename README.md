@@ -12,7 +12,7 @@ MorphoSource allows searching for media and physical objects. Each physical obje
 ## Installation
 
 ```console
-pip install git+https://github.com/Imageomics/pyMorphoSource.git@simple-api
+pip install --upgrade git+https://github.com/Imageomics/pyMorphoSource.git@simple-api
 ```
 
 ## Setup
