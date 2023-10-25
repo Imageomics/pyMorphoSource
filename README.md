@@ -74,6 +74,13 @@ for media in results.items:
     media.download_bundle(path=path, api_key=API_KEY)
 ```
 
+Next you need to use the MorphoSource API key created following [Create an API Key instructions](#create-an-api-Key).
+To set the API_KEY environment variable run the following filling in your API KEY:
+```console
+export API_KEY=<MorphoSource-API-Key>
+```
+Then you can run the python script.
+
 Example Output:
 ```console
 Downloading 000390223 Dentary Teeth [Mesh] [CT] to 000390223.zip
