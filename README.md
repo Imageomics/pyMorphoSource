@@ -1,15 +1,13 @@
 # pyMorphoSource
-Python package for interacting with the MorphoSource API.
+Python package for interacting with the [MorphoSource](https://www.morphosource.org/) API.
 
------
+MorphoSource allows searching for media and physical objects. Each physical object is typically associated with one or more media. There are two types of physical objects in MorphoSource: 1) Biological Specimens and 2) Cultural Heritage Objects. Searching physical objects allows some filtering options not available when searching media.
 
 **Table of Contents**
 
 - [Installation](#installation)
 - [Setup](#setup)
 - [Examples](#examples)
-- [API](#api)
-- [License](#license)
 
 ## Installation
 
@@ -29,6 +27,112 @@ To create the API Key:
 
 
 ## Examples
+### Media
+
+#### Search Media
+Searching for media can be done with the `search_media()` function.
+This example searches media checking all all fields for "Fruitadens".
+```python
+from morphosource import search_media
+
+results = search_media("Fruitadens")
+print("Found", results.pages["total_count"], "items")
+for media in results.items:
+    print(media.id, media.title)
+```
+
+Example Output:
+```console
+Found 5 items
+000390223 Dentary Teeth [Mesh] [CT]
+000390218 Maxillary Teeth [Mesh] [CT]
+000390213 Maxillary Teeth [Mesh] [CT]
+000390208 Dentary Teeth [Mesh] [CT]
+000390204 Maxillary Teeth [Mesh] [CT]
+```
+
+#### Search and Download Open Media
+The `publication` parameter for `search` allows filtering for publication(download permissions).
+Example values for `publication` are "Open Download" or "Restricted Download".
+To download a media file requires an MorphoSource API key.
+This example expects the MorphoSource API key to be supplied via an environment variable.
+
+```python
+import os
+from morphosource import search_media
+
+API_KEY = os.environ["API_KEY"]
+
+results = search_media("Fruitadens", publication="Open Download")
+for media in results.items:
+    path = f"{media.id}.zip"
+    print(f"Downloading {media.id} {media.title} to {path}")
+    media.download_bundle(path=path, api_key=API_KEY)
+```
+
+Example Output:
+```console
+Downloading 000390223 Dentary Teeth [Mesh] [CT] to 000390223.zip
+Downloading 000390218 Maxillary Teeth [Mesh] [CT] to 000390218.zip
+Downloading 000390213 Maxillary Teeth [Mesh] [CT] to 000390213.zip
+Downloading 000390208 Dentary Teeth [Mesh] [CT] to 000390208.zip
+Downloading 000390204 Maxillary Teeth [Mesh] [CT] to 000390204.zip
+```
+
+#### Search Media Advanced
+The  `search_media` has some additional parameters to filter the items returned.
+- media_type - str - Type of media (eg. "Mesh")
+- publication - str - Publication download status (eg. "Open Download" or "Restricted Download")
+- media_tag - str - Tag applied to the meda (eg. "femur")
+- object_type - Type of physical object (eg. "Biological Specimen" or "Cultural Heritage Object")
+
+By default `search_media` will fetch all items, which can be slow for certain queries.
+To fetch a limited set of items pass the `page` and `per_page` parameters. 
+
+query=None, media_type=None, publication=None, media_tag=None, object_type=None, per_page=None, page=None
+
+
+This example uses many parameters to search for the first 4 media matching the combined filters.  
+```python
+from morphosource import search_media
+
+results = search_media("Chalcides",  media_type="Mesh", publication="Open Download", media_tag="pelvis", 
+                       object_type="Biological Specimen", per_page=4, page=1)
+print("Found", results.pages["total_count"], "items")
+for media in results.items:
+    print(media.id, media.title)
+
+```
+
+Example Output:
+```console
+Found 78 items
+000429026 Pelvis [Mesh] [CT]
+000429008 Pelvis [Mesh] [CT]
+000428985 Pelvis [Mesh] [CT]
+000428965 Pelvis [Mesh] [CT]
+```
+
+#### Get Single Media
+Using the `get_media()` function details about single media object can be retreived.
+
+In this example we fetch media with id "000429026".
+The data parameter contains all fields returned from the MorphoSource API.
+```python
+from morphosource import get_media
+
+media = get_media(media_id="000429026")
+print(media.id, media.title)
+print(media.data)
+```
+
+Example Output;
+```console
+000429026 Pelvis [Mesh] [CT]
+{'id': ['000429026'], 'title': ['Pelvis [Mesh] [CT]'], 'media_type': ['Mesh'], 'modality': ['MicroNanoXRayComputedTomography'], 'device': ['Perkin Elmer Quantum GX2'], ...
+```
+
+If the media id isn't found a `morphosource.api.ItemNotFound` exception will be raised.
 
 ### Search biological specimens filtering on all fields
 This example will print out the first page of specimens matching the query "salamander".
@@ -88,7 +192,7 @@ Create and a python script with the following contents:
 import os
 from morphosource import search_biological_specimens
 
-MS_API_KEY = os.environ["API_KEY"]
+API_KEY = os.environ["API_KEY"]
 
 search_results = search_biological_specimens(query="Puma", taxonomy="Carnivora", media_type="Mesh")
 specimen = search_results.specimens[0]
@@ -97,7 +201,7 @@ print(f"Downloading all media files for {specimen.title}")
 for media in specimen.get_media_ary(open_visibility_only=True):
     path = f"{media.id}.zip"
     print(f"Downloading {media.id} to {path}")
-    media.download_bundle(path=path, api_key=MS_API_KEY)
+    media.download_bundle(path=path, api_key=API_KEY)
 ```
 Next you need to use the MorphoSource API key created following [Create an API Key instructions](#create-an-api-Key).
 To set the API_KEY environment variable run the following filling in your API KEY:
@@ -111,6 +215,7 @@ Example Output:
 Downloading all media files for LACM:rlb:P23-32433 
 Downloading 000571035 to 000571035.zip
 ```
+
 #### Extract MorphoSource zip file
 Extracting the contents of the zip
 ```console
@@ -133,70 +238,3 @@ Archive:  Media 000571035 - Skull Mesh StrLight/P23_32433_Puma_concolor_skull-00
   inflating: P23 32433 Puma concolor skull.mtl  
   inflating: P23 32433 Puma concolor skull.obj
 ```
-
-## API
-### search_biological_specimens
-Function retrieves one page of physicial objects of type 'Biological Specimen' filtered using the supplied parameters.
-
-__search_biological_specimens__(query, taxonomy, media_type, per_page, page) -> *SpecimenSearchResults*
-
-> Returns an object that contains a list of BiologicalSpecimen objects, a list of facets, and paging information.
-    
-Parameters:
-- __query__ - str that filters on all physicial object fields - optional
-- __taxonomy__ - str parameter to filter based on Taxonomy (GBIF) - example value `Carnivora` - optional
-- __media_type__ - str parameter to filter based on Media Type - example value `Mesh` - optional
-- __per_page__ - int how many items are returned in each page - optional (default is 10)
-- __page__ - int page number to fetch - optional (default is 1)
-
-### SpecimenSearchResults
-Object represents one page of biological specimen search results.
-
-Properties:
-- __specimens__ - list of BiologicalSpecimen objects
-- __pages__ - dictionary of paging information - Example value `{'current_page': 1, 'next_page': 2, 'prev_page': None, 'total_pages': 163, 'limit_value': 10, 'offset_value': 0, 'total_count': 1624, 'first_page?': True, 'last_page?': False}`
-- __facets__ - list of dictionaries where each dictionary is a field that can be filtered via the MorphoSource UI
-
-### BiologicalSpecimen
-Object represents a single biological specimen.
-
-Properties:
-- __id__ - str unique id for this physical object
-- __title__ - str specimen title
-- __taxonomy__ - str Taxonomy (GBIF)
-- __data__ - dictionary of all values associated with the specimen
-
-Methods:
-#### get_media_ary
->  Returns the list of media associated with a specimen.
-__get_media_ary__(open_visibility_only) -> *[Media]*
-Parameters:
-- __open_visibility_only__ - boolean to only return media with 'open' visibility - optional (default is False)
-
-### Media
-Object represents a file downloadable from MorphoSource.
-To download the visibilty property must be 'open' or the user has received permissions to download.
-
-Properties:
-- __id__ - str unique id for this media object
-- __title__ - str media title
-- __media_type__ - str type of media
-- __visibility__ - str either 'open' or 'restricted_download'
-- __data__ - dictionary of all values associated with the media
-
-Methods:
-#### download_bundle
-Download the zip bundle to the specified __path__. The bundle includes the media file and several metadata files.
-
-__download_bundle__(path, api_key, use_statement, use_categories, use_category_other)
-
-Parameters:
-- __path__ - path for where to save the zip file - required
-- __api_key__ - MorphoSource Api Key (See [Setup](#setup)) - required
-- __use_statement__ - Description of the reason for downloading - optional (default is `Downloading this data as part of a research project.`)
-- __use_categories__ - Cateogories of use - optional (default is ["Research"])
-- __use_category_other__ - Text description of use category - optional (default is None)
-
-## License
-
-`morphosource` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
