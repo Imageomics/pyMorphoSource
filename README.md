@@ -114,7 +114,7 @@ Found 50 items
 Using the `get_media()` function details about single media object can be retreived.
 
 In this example we fetch media with id "000429026".
-The data parameter contains all fields returned from the MorphoSource API.
+The `data` property contains all fields returned from the MorphoSource API.
 ```python
 from morphosource import get_media
 
