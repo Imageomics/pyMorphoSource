@@ -137,6 +137,10 @@ Example Output;
 ```
 
 If the media id isn't found a `morphosource.api.ItemNotFound` exception will be raised.
+### Physical Objects
+The `search_objects()` function searches all physical objects. 
+The two types of physical objects in MorphoSource are "Biological Specimens" and "Cultural Heritage Objects".
+The `search_biological_specimens()` and `search_cultural_heritage_objects()` functions provide a simpler way of searching these two types.
 
 ### Search biological specimens filtering on all fields
 This example will print out the first page of specimens matching the query "salamander".
