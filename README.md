@@ -51,10 +51,14 @@ Found 5 items
 000390204 Maxillary Teeth [Mesh] [CT]
 ```
 
+By default `search_media` will fetch all items, which can be slow for certain queries.
+To fetch a limited set of items pass the `page` and `per_page` parameters. 
+
 #### Search and Download Open Media
-The `publication` parameter for `search` allows filtering for publication(download permissions).
+MorphoSource contains some media that has restricted download status. 
+The `search_media()` `publication` parameter allows filtering for open download media.
 Example values for `publication` are "Open Download" or "Restricted Download".
-To download a media file requires an MorphoSource API key.
+To download a media file requires a MorphoSource API key.
 This example expects the MorphoSource API key to be supplied via an environment variable.
 
 ```python
@@ -82,21 +86,14 @@ Downloading 000390204 Maxillary Teeth [Mesh] [CT] to 000390204.zip
 #### Search Media Advanced
 The  `search_media` has some additional parameters to filter the items returned.
 - media_type - str - Type of media (eg. "Mesh")
-- publication - str - Publication download status (eg. "Open Download" or "Restricted Download")
 - media_tag - str - Tag applied to the meda (eg. "femur")
 - object_type - Type of physical object (eg. "Biological Specimen" or "Cultural Heritage Object")
-
-By default `search_media` will fetch all items, which can be slow for certain queries.
-To fetch a limited set of items pass the `page` and `per_page` parameters. 
-
-query=None, media_type=None, publication=None, media_tag=None, object_type=None, per_page=None, page=None
-
 
 This example uses many parameters to search for the first 4 media matching the combined filters.  
 ```python
 from morphosource import search_media
 
-results = search_media("Chalcides",  media_type="Mesh", publication="Open Download", media_tag="pelvis", 
+results = search_media("Chalcides",  media_type="Mesh", media_tag="pelvis", 
                        object_type="Biological Specimen", per_page=4, page=1)
 print("Found", results.pages["total_count"], "items")
 for media in results.items:
@@ -106,11 +103,11 @@ for media in results.items:
 
 Example Output:
 ```console
-Found 78 items
-000429026 Pelvis [Mesh] [CT]
-000429008 Pelvis [Mesh] [CT]
-000428985 Pelvis [Mesh] [CT]
-000428965 Pelvis [Mesh] [CT]
+Found 50 items
+000427170 Pelvis [Mesh] [CT]
+000427163 Pelvis [Mesh] [CT]
+000427156 Pelvis [Mesh] [CT]
+000427149 Pelvis [Mesh] [CT]
 ```
 
 #### Get Single Media
@@ -142,7 +139,7 @@ Create and run a python script following contents:
 from morphosource import search_biological_specimens
 
 search_results = search_biological_specimens(query="salamander")
-for specimen in search_results.specimens:
+for specimen in search_results.items:
     print(specimen.id, specimen.title, specimen.taxonomy)
 ```
 
@@ -155,7 +152,7 @@ Example Output:
 ```
 
 ### Search biological specimens filtering on taxonomy and file type
-This example will print out the first page of specimens and their associated media files.
+This example will print out the first 4 specimens and their associated media files.
 
 Filters:
 - all fields will be filtered by "Puma"
@@ -164,8 +161,9 @@ Filters:
 ```python
 from morphosource import search_biological_specimens
 
-search_results = search_biological_specimens(query="Puma", taxonomy="Carnivora", media_type="Mesh")
-for specimen in search_results.specimens:
+search_results = search_biological_specimens(query="Puma", taxonomy="Carnivora", media_type="Mesh", 
+                                             page=1, per_page=4)
+for specimen in search_results.items:
     print(specimen.id, specimen.title)
     for media in specimen.get_media_ary():
         print(" ", media.id, media.title)
@@ -180,11 +178,19 @@ Example Output:
   000010112 Mandible [Mesh] [Etc]
 0000S7641 uf:mammals:25908
   000031935 Humerus [Mesh] [CT]
+000531838 IU:ZOOARCH:0110164
+  000531865 Lumbar L7 [Mesh] [StrLight]
+  000531861 Lumbar L6 [Mesh] [StrLight]
+  000531857 Lumbar L5 [Mesh] [StrLight]
+  000531853 Lumbar L4 [Mesh] [StrLight]
+  000531849 Lumbar L3 [Mesh] [StrLight]
+  000531845 Lumbar L1 [Mesh] [Laser]
+  000531841 Lumbar L2 [Mesh] [StrLight]
 ```
 
 ### Download media files associated with a biological specimen
 This example will find a specimen and download all associated media file zip bundles with visibility 'open'.
-To download a media file requires an MorphoSource API key.
+To download a media file requires a MorphoSource API key.
 This example expects the MorphoSource API key to be supplied via an environment variable.
 
 Create and a python script with the following contents:
@@ -195,7 +201,7 @@ from morphosource import search_biological_specimens
 API_KEY = os.environ["API_KEY"]
 
 search_results = search_biological_specimens(query="Puma", taxonomy="Carnivora", media_type="Mesh")
-specimen = search_results.specimens[0]
+specimen = search_results.items[0]
 
 print(f"Downloading all media files for {specimen.title}")
 for media in specimen.get_media_ary(open_visibility_only=True):
