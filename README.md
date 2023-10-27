@@ -90,7 +90,7 @@ Downloading 000390208 Dentary Teeth [Mesh] [CT] to 000390208.zip
 Downloading 000390204 Maxillary Teeth [Mesh] [CT] to 000390204.zip
 ```
 
-If you attempt to download restricted media that you have not received permissions for a `RestrictedDownloadError` exception will be raised. Requesting permissions for some media must be done via [MorphoSource](https://www.morphosource.org/).
+If you attempt to download restricted media that you have not received permissions for, a `RestrictedDownloadError` exception will be raised. Requesting permissions for some media must be done via [MorphoSource](https://www.morphosource.org/). Once you have received permission, you can use this package to download the media.
 
 #### Search Media Advanced
 The  `search_media` has some additional parameters to filter the items returned.
