@@ -118,7 +118,7 @@ Found 50 items
 ```
 
 #### Get Single Media
-Using the `get_media()` function details about single media object can be retreived.
+The `get_media()` function can be used to retrieve details about a single media object.
 
 In this example we fetch media with id "000429026".
 The `data` property contains all fields returned from the MorphoSource API.
