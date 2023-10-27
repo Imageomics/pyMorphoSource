@@ -2,6 +2,7 @@
 Python package for interacting with the [MorphoSource](https://www.morphosource.org/) [API](https://morphosource.stoplight.io/).
 
 __NOTE:__ By using this package to downloading files from MorphoSource you are consenting to the user agreements of those specific files.
+See [MorphoSource Terms of Use](https://www.morphosource.org/terms) for more details.
 
 **Table of Contents**
 
