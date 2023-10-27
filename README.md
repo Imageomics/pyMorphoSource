@@ -28,7 +28,7 @@ To create the API Key:
 ### Media
 #### Search Media
 The `search_media()` function allows searching for media in MorphoSource.
-This example searches media checking all all fields for "Fruitadens".
+This example searches media checking all fields for "Fruitadens".
 ```python
 from morphosource import search_media
 
