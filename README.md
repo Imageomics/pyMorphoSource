@@ -144,3 +144,98 @@ Example Output;
 ```
 
 If the media id isn't found a `morphosource.api.ItemNotFound` exception will be raised.
+
+
+### Physical Objects
+In MorphoSource a physical object can be associated with multiple media. For example a specific turtle could have different scans of various body parts. The turtle will be represented as a physicial object and each scan will be represented as a media object.
+Physical objects have two types [Biological Specimen](https://www.morphosource.org/terms/ms/BiologicalSpecimenObject) and [Cultural Heritage Object](https://www.morphosource.org/terms/ms/CulturalHeritageObject).
+
+#### Search Physical Objects
+The `search_objects()` function allows searching biological specimen and/or cultural heritage objects in MorphoSource.
+
+This function is the equivalent of searching in the MorphoSource website with "Objects" chosen:
+![morphosource media search](docs/images/morphosource-search-objects.png)
+
+This example searches both physical object types checking all fields for "Fruitadens".
+```python
+from morphosource import search_objects
+
+results = search_objects("Fruitadens")
+
+for item in results.items:
+    print(item.id, item.title, item.type)
+```
+
+Example Output:
+```console
+000390220 LACM:DI:128258 Biological Specimen
+000390215 LACM:DI:128258 Biological Specimen
+000390210 LACM:DI:128258 Biological Specimen
+000390201 LACM:DI:115747 Biological Specimen
+```
+
+#### Search Biological Specimens
+The `object_type` parameter for `search_objects()` can be used with `ObjectTypes.BIOLOGICAL_SPECIMEN` or `ObjectTypes.CULTURAL_HERITAGE` to filter for a particular object type.
+
+This example searches for biological specimens returning the first 4 physical objects matching the combined filters.
+```python
+from morphosource import search_objects, ObjectTypes
+
+results = search_objects("U.W,", object_type=ObjectTypes.BIOLOGICAL_SPECIMEN,
+                         taxonomy="Primates", media_type="Mesh",
+                         media_tag="Homo naledi", per_page=4, page=1)
+
+for item in results.items:
+    print(item.id, item.title)
+```
+
+Example Output:
+```console
+000394512 U.W.110
+000394640 U.W.110-11
+000394627 U.W.110-10
+000394614 U.W.110-9
+```
+
+#### Get Physical Object
+The `get_object()` function can be used to retrieve details about a single physical object.
+
+In this example we fetch the physical object with id "000394640".
+The data property contains all fields returned from the MorphoSource API.
+
+```python
+from morphosource import get_object
+
+obj = get_object("000394640")
+
+print(obj.id, obj.title, obj.type)
+print(obj.data)
+```
+
+Example Output:
+```console
+000394640 U.W.110-11 Biological Specimen
+{'id': ['000394640'], 'title': ['U.W.110-11'], 'organization': ['Centre for the Exploration of the Deep Human Journey'], ...}
+```
+
+#### Find Media for a Physical Object
+The `get_media_ary()` physical object method returns an array of media associated with the physical object.
+By default this includes both open and restricted media. 
+Passing `True` to the `open_visibility_only` argument will return media that is downloadable without requesting permission.
+
+```python
+from morphosource import get_object
+
+obj = get_object("0000S2086")
+for media in obj.get_media_ary(open_visibility_only=True):
+    print(media.id, media.title)
+```
+
+Example Output:
+```console
+000006433 Femur Proximal [Mesh] [Etc]
+000006434 Element Unspecified [Image] [Etc]
+```
+
+The zip bundle associated with each media can be downloaded using `media.download_bundle()`.
+

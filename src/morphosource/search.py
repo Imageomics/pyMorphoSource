@@ -2,7 +2,7 @@ import os
 import requests
 from morphosource.fetch import fetch_items, fetch_item
 from morphosource.exceptions import ItemNotFound
-from morphosource.download import download_media_bundle
+from morphosource.download import download_media_bundle, DownloadVisibility
 from morphosource.config import Endpoints
 
 
@@ -17,16 +17,45 @@ def _get(obj, name, unlist=True):
     return value
 
 
+class ObjectTypes(object):
+    BIOLOGICAL_SPECIMEN = "Biological Specimen"
+    CULTURAL_HERITAGE = "Cultural Heritage Object"
+
+
 class Media(object):
     def __init__(self, data):
         self.id = _get(data, "id")
         self.title = _get(data, "title")
         self.media_type = _get(data, "media_type")
         self.visibility = _get(data, "visibility")
+        self.physical_object_id = _get(data, "physical_object_id")
         self.data = data
 
     def download_bundle(self, path, download_config):
         download_media_bundle(media_id=self.id, path=path, download_config=download_config)
+
+
+class PhysicalObject(object):
+    def __init__(self, data):
+        self.id = _get(data, "id")
+        self.title = _get(data, "title")
+        self.type = _get(data, "type")
+        self.taxonomy = _get(data, "taxonomy")
+        self.data = data
+
+    def get_media_ary(self, open_visibility_only=False):
+        results = []
+        media_search_results = search_media(query=self.id)
+        for media in media_search_results.items:
+            if self.id == media.physical_object_id:
+                if open_visibility_only:
+                    # NOTE: The value returned in visiblity is different than the facet 
+                    # filtering values (DownloadVisibility).
+                    if media.visibility == "open":
+                        results.append(media)
+                else:
+                    results.append(media)
+        return results
 
 
 class SearchResults(object):
@@ -66,4 +95,42 @@ def get_media(media_id):
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 404:
             raise ItemNotFound(f"No media found with id {media_id}")
+        raise err
+
+
+def search_objects(
+    query=None, object_type=None, taxonomy=None, media_type=None, media_tag=None, per_page=None, page=None
+):
+    params = create_facet_dict(
+        human_readable_type_sim=object_type,
+        external_taxonomy_ssim=taxonomy,
+        public_media_type_ssim=media_type,
+        public_media_keyword_ssim=media_tag,
+    )
+    raw_items, facets, pages = fetch_items(
+        url=Endpoints.PHYSICAL_OBJECTS,
+        query=query,
+        params=params,
+        per_page=per_page,
+        page=page,
+        items_name="physical_objects",
+    )
+    objects = [PhysicalObject(item) for item in raw_items]
+    return SearchResults(objects, facets, pages)
+
+
+def get_object(object_id):
+    try:
+        url = f"{Endpoints.PHYSICAL_OBJECTS}/{object_id}"
+        outer_data = fetch_item(url)
+        if "biological_specimen" in outer_data:
+            data = outer_data["biological_specimen"]
+        elif "cultural_heritage_object" in outer_data:
+            data = outer_data["cultural_heritage_object"]
+        else:
+            raise ValueError(f"Received unknown physical object: {outer_data.keys()}")
+        return PhysicalObject(data=data)
+    except requests.exceptions.HTTPError as err:
+        if err.response.status_code == 404:
+            raise ItemNotFound(f"No object found with id {object_id}")
         raise err
