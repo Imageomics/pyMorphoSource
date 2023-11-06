@@ -60,7 +60,7 @@ To fetch a limited set of items pass the `page` and `per_page` parameters.
 
 #### Search and Download Open Media
 MorphoSource contains some media that has restricted download status. 
-The `search_media()` `publication` parameter allows filtering for OPEN or RESTRICTED download media.
+The `search_media()` `visibility` parameter allows filtering for OPEN or RESTRICTED download media.
 To download a media file requires a MorphoSource API key, a use statement, and use categories.
 This example expects the MorphoSource API key to be supplied via an environment variable.
 
