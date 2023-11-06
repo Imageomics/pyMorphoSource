@@ -220,14 +220,14 @@ Example Output:
 
 #### Find Media for a Physical Object
 The `get_media_ary()` physical object method returns an array of media associated with the physical object.
-By default this includes both open and restricted media. 
-Passing `True` to the `open_visibility_only` argument will return media that is downloadable without requesting permission.
+By default this includes both open and restricted media.
+The `get_media_ary()` `visibility` parameter allows filtering for OPEN or RESTRICTED download media.
 
 ```python
-from morphosource import get_object
+from morphosource import get_object, DownloadVisibility
 
 obj = get_object("0000S2086")
-for media in obj.get_media_ary(open_visibility_only=True):
+for media in obj.get_media_ary(visibility=DownloadVisibility.OPEN):
     print(media.id, media.title)
 ```
 

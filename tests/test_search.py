@@ -205,8 +205,12 @@ class TestSearch(unittest.TestCase):
         mock_search_media.return_value = Mock(items=[media1, media2])
         obj = get_object(object_id="123")
 
-        ary = obj.get_media_ary(open_visibility_only=True)
-        self.assertEqual(ary, [media1])
-
-        ary = obj.get_media_ary(open_visibility_only=False)
+        ary = obj.get_media_ary()
         self.assertEqual(ary, [media1, media2])
+        mock_search_media.assert_called_with(query='000577960', visibility=None)
+
+        ary = obj.get_media_ary(visibility=DownloadVisibility.OPEN)
+        mock_search_media.assert_called_with(query='000577960', visibility=DownloadVisibility.OPEN)
+
+        ary = obj.get_media_ary(visibility=DownloadVisibility.RESTRICTED)
+        mock_search_media.assert_called_with(query='000577960', visibility=DownloadVisibility.RESTRICTED)

@@ -43,18 +43,14 @@ class PhysicalObject(object):
         self.taxonomy = _get(data, "taxonomy")
         self.data = data
 
-    def get_media_ary(self, open_visibility_only=False):
+    def get_media_ary(self, visibility=None):
         results = []
-        media_search_results = search_media(query=self.id)
+        media_search_results = search_media(query=self.id, visibility=visibility)
         for media in media_search_results.items:
             if self.id == media.physical_object_id:
-                if open_visibility_only:
-                    # NOTE: The value returned in visiblity is different than the facet 
-                    # filtering values (DownloadVisibility).
-                    if media.visibility == "open":
-                        results.append(media)
-                else:
-                    results.append(media)
+                results.append(media)
+            else:
+                results.append(media)
         return results
 
 
