@@ -37,6 +37,9 @@ class Media(object):
     def get_download_bundle_url(self, download_config):
         return get_download_media_zip_url(media_id=self.id, download_config=download_config)
 
+    def get_website_url(self):
+        return f"https://www.morphosource.org/concern/media/{self.id}"
+
 
 class PhysicalObject(object):
     def __init__(self, data):

@@ -1,7 +1,7 @@
 import unittest
 import requests
 from unittest.mock import patch, Mock
-from morphosource.search import search_media, get_media, Endpoints, ItemNotFound, \
+from morphosource.search import search_media, get_media, Media, Endpoints, ItemNotFound, \
     get_object, ObjectTypes, search_objects
 from morphosource.download import DownloadVisibility
 from morphosource.search import Media
@@ -214,3 +214,8 @@ class TestSearch(unittest.TestCase):
 
         ary = obj.get_media_ary(visibility=DownloadVisibility.RESTRICTED)
         mock_search_media.assert_called_with(query='000577960', visibility=DownloadVisibility.RESTRICTED)
+
+    def test_get_website_url(self):
+        media = Media(MS_MEDIA[0])
+        url = media.get_website_url()
+        self.assertEqual(url, "https://www.morphosource.org/concern/media/000390223")
