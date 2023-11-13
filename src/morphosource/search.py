@@ -2,7 +2,7 @@ import os
 import requests
 from morphosource.fetch import fetch_items, fetch_item
 from morphosource.exceptions import ItemNotFound
-from morphosource.download import download_media_bundle, DownloadVisibility
+from morphosource.download import download_media_bundle, get_download_media_zip_url, DownloadVisibility
 from morphosource.config import Endpoints
 
 
@@ -33,6 +33,12 @@ class Media(object):
 
     def download_bundle(self, path, download_config):
         download_media_bundle(media_id=self.id, path=path, download_config=download_config)
+
+    def get_download_bundle_url(self, download_config):
+        return get_download_media_zip_url(media_id=self.id, download_config=download_config)
+
+    def get_website_url(self):
+        return f"https://www.morphosource.org/concern/media/{self.id}"
 
 
 class PhysicalObject(object):

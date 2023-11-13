@@ -1,7 +1,8 @@
 import unittest
 import requests
 from unittest.mock import patch, Mock, mock_open
-from morphosource.download import download_media_bundle, DownloadConfig, Endpoints
+from morphosource.download import download_media_bundle, get_download_media_zip_url, \
+    DownloadConfig, Endpoints
 from morphosource.exceptions import RestrictedDownloadError
 
 
@@ -46,3 +47,13 @@ class TestDownload(unittest.TestCase):
         expected_msg = """You do not have authorization to download this restricted media.
 Please visit https://www.morphosource.org and request download permission for media id: 123"""
         self.assertEqual(str(raised_exception.exception), expected_msg)
+
+    @patch("morphosource.download.requests")
+    def test_get_download_bundle_url(self, mock_requests):
+        post_response = Mock()
+        mock_requests.post.return_value = post_response
+        post_response.json.return_value = {"response": {"media": {"download_url": ["someurl"]}}}
+
+        url = get_download_media_zip_url(media_id="1", download_config=download_config)
+
+        self.assertEqual(url, "someurl")
