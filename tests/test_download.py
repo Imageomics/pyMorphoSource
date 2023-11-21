@@ -17,7 +17,7 @@ class TestDownload(unittest.TestCase):
     def test_download_media_bundle(self, mock_file, mock_requests):
         post_response = Mock()
         mock_requests.post.return_value = post_response
-        post_response.json.return_value = {"response": {"media": {"download_url": ["someurl"]}}}
+        post_response.json.return_value = {"response": {"media": {"download_url": "someurl"}}}
         get_response = Mock()
         get_response.iter_content.return_value = ["somedata"]
         mock_requests.get.return_value = get_response
@@ -52,7 +52,7 @@ Please visit https://www.morphosource.org and request download permission for me
     def test_get_download_bundle_url(self, mock_requests):
         post_response = Mock()
         mock_requests.post.return_value = post_response
-        post_response.json.return_value = {"response": {"media": {"download_url": ["someurl"]}}}
+        post_response.json.return_value = {"response": {"media": {"download_url": "someurl"}}}
 
         url = get_download_media_zip_url(media_id="1", download_config=download_config)
 
