@@ -108,7 +108,8 @@ This example uses many parameters to search for the first 4 media matching the c
 ```python
 from morphosource import search_media
 
-results = search_media("Chalcides",  media_type="Mesh", media_tag="pelvis", per_page=4, page=1)
+results = search_media("X-Ray",  taxonomy_gbif="Chalcides", media_type="Mesh", media_tag="pelvis",
+                       per_page=4, page=1)
 print("Found", results.pages["total_count"], "items")
 for media in results.items:
     print(media.id, media.title)
@@ -182,7 +183,7 @@ This example searches for biological specimens returning the first 4 physical ob
 from morphosource import search_objects, ObjectTypes
 
 results = search_objects("U.W,", object_type=ObjectTypes.BIOLOGICAL_SPECIMEN,
-                         taxonomy="Primates", media_type="Mesh",
+                         taxonomy_gbif="Primates", media_type="Mesh",
                          media_tag="Homo naledi", per_page=4, page=1)
 
 for item in results.items:

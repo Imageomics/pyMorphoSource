@@ -71,9 +71,9 @@ class TestSearch(unittest.TestCase):
             "Fruitadens", media_type="Mesh", visibility=DownloadVisibility.OPEN, media_tag="pelvis", per_page=8, page=2
         )
         expected_params = {
-            'f[human_readable_media_type_ssim][]': 'Mesh',
-            'f[publication_status_ssi][]': 'Open Download',
-            'f[keyword_ssim][]': 'pelvis',
+            'f.media_type': 'Mesh',
+            'f.publication_status': 'Open Download',
+            'f.tag': 'pelvis',
         }
         mock_fetch_items.assert_called_with(
             url=Endpoints.MEDIA, query="Fruitadens", params=expected_params, per_page=8, page=2, items_name="media"
@@ -110,7 +110,7 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(results.items[0].data, MS_SPECIMEN[0])
         self.assertEqual(len(results.facets), 1)
         self.assertEqual(results.pages['total_count'], 2)
-        expected_params = {'f[human_readable_type_sim][]': 'Biological Specimen'}
+        expected_params = {'f.object_type': 'Biological Specimen'}
         mock_fetch_items.assert_called_with(
             url=Endpoints.PHYSICAL_OBJECTS, query="Fruitadens", params=expected_params,
             per_page=None, page=None, items_name="physical_objects"
@@ -120,13 +120,13 @@ class TestSearch(unittest.TestCase):
     def test_biological_specimen_advanced(self, mock_fetch_items):
         mock_fetch_items.return_value = MS_SPECIMEN, MS_FACETS, MS_PAGES
         results = search_objects("Fruita", object_type=ObjectTypes.BIOLOGICAL_SPECIMEN,
-                                 taxonomy="Ornithischia", media_type="Mesh", media_tag="pelvis",
+                                 taxonomy_gbif="Ornithischia", media_type="Mesh", media_tag="pelvis",
                                  per_page=8, page=2)
         expected_params = {
-            'f[human_readable_type_sim][]': 'Biological Specimen',
-            'f[external_taxonomy_ssim][]': 'Ornithischia',
-            'f[public_media_type_ssim][]': 'Mesh',
-            'f[public_media_keyword_ssim][]': 'pelvis'
+            'f.object_type': 'Biological Specimen',
+            'f.taxonomy_gbif': 'Ornithischia',
+            'f.media_type': 'Mesh',
+            'f.media_tag': 'pelvis'
         }
         mock_fetch_items.assert_called_with(
             url=Endpoints.PHYSICAL_OBJECTS, query="Fruita", params=expected_params, 
@@ -144,7 +144,7 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(results.items[0].data, MS_CULTURAL_OBJECT[0])
         self.assertEqual(len(results.facets), 1)
         self.assertEqual(results.pages['total_count'], 2)
-        expected_params = {'f[human_readable_type_sim][]': 'Cultural Heritage Object'}
+        expected_params = {'f.object_type': 'Cultural Heritage Object'}
         mock_fetch_items.assert_called_with(
             url=Endpoints.PHYSICAL_OBJECTS, query="Spindle", params=expected_params,
             per_page=None, page=None, items_name="physical_objects"
@@ -156,9 +156,9 @@ class TestSearch(unittest.TestCase):
         results = search_objects("Spindle", object_type=ObjectTypes.CULTURAL_HERITAGE,
                                  media_type="Mesh", media_tag="ceramic", per_page=8, page=2)
         expected_params = {
-            'f[human_readable_type_sim][]': 'Cultural Heritage Object',
-            'f[public_media_type_ssim][]': 'Mesh',
-            'f[public_media_keyword_ssim][]': 'ceramic'
+            'f.object_type': 'Cultural Heritage Object',
+            'f.media_type': 'Mesh',
+            'f.media_tag': 'ceramic'
         }
         mock_fetch_items.assert_called_with(
             url=Endpoints.PHYSICAL_OBJECTS, query="Spindle", params=expected_params,
