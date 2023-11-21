@@ -1,6 +1,7 @@
 import os
 
-API_URL = os.environ.get("MORPHOSOURCE_API_URL", "https://www.morphosource.org/api")
+WEBSITE_URL = "https://www.morphosource.org"
+API_URL = os.environ.get("MORPHOSOURCE_API_URL", f"{WEBSITE_URL}/api")
 
 
 class Endpoints(object):

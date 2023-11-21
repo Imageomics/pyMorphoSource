@@ -3,7 +3,7 @@ import requests
 from morphosource.fetch import fetch_items, fetch_item
 from morphosource.exceptions import ItemNotFound
 from morphosource.download import download_media_bundle, get_download_media_zip_url, DownloadVisibility
-from morphosource.config import Endpoints
+from morphosource.config import Endpoints, WEBSITE_URL
 
 
 def _get(obj, name, unlist=True):
@@ -38,7 +38,13 @@ class Media(object):
         return get_download_media_zip_url(media_id=self.id, download_config=download_config)
 
     def get_website_url(self):
-        return f"https://www.morphosource.org/concern/media/{self.id}"
+        return f"{WEBSITE_URL}/concern/media/{self.id}"
+
+    def get_thumbnail_url(self):
+        file_thumbnail_url = _get(self.data, 'file_thumbnail_url')
+        if file_thumbnail_url:
+            return f"{WEBSITE_URL}{file_thumbnail_url}"
+        return None
 
 
 class PhysicalObject(object):

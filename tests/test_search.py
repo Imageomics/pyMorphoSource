@@ -12,14 +12,15 @@ MS_MEDIA = [
         'title': ['Dentary Teeth [Mesh] [CT]'],
         'media_type': ['Mesh'],
         "visibility": ["Open Download"],
-        "physical_object_id": ["000577960"]
+        "physical_object_id": ["000577960"],
+        'file_thumbnail_url': ['/downloads/000390223?file=thumbnail&t=1604144137'],
     },
     {
         'id': ['000390218'],
         'title': ['Maxillary Teeth [Mesh] [CT]'],
         'media_type': ['Mesh'],
         "visibility": ["Restricted Download"],
-        "physical_object_id": ["000577960"],        
+        "physical_object_id": ["000577960"]
     },
 ]
 MS_FACETS = [{'name': 'generic_type_sim', 'items': [], 'label': 'Generic Type Sim'}]
@@ -219,3 +220,12 @@ class TestSearch(unittest.TestCase):
         media = Media(MS_MEDIA[0])
         url = media.get_website_url()
         self.assertEqual(url, "https://www.morphosource.org/concern/media/000390223")
+
+    def test_get_thumbnail_url(self):
+        media = Media(MS_MEDIA[0])
+        url = media.get_thumbnail_url()
+        self.assertEqual(url, "https://www.morphosource.org/downloads/000390223?file=thumbnail&t=1604144137")
+
+        media = Media(MS_MEDIA[1])
+        url = media.get_thumbnail_url()
+        self.assertEqual(url, None)
