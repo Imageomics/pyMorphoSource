@@ -130,18 +130,24 @@ The `get_media()` function can be used to retrieve details about a single media 
 
 In this example we fetch media with id "000429026".
 The `data` property contains all fields returned from the MorphoSource API.
+The `get_website_url()` method returns a URL to view the media in the MorphoSource website.
+The `get_thumbnail_url()` method returns a URL for the media's thumbnail image.
 ```python
 from morphosource import get_media
 
 media = get_media(media_id="000429026")
 print(media.id, media.title)
 print(media.data)
+print(media.get_website_url())
+print(media.get_thumbnail_url())
 ```
 
 Example Output;
 ```console
 000429026 Pelvis [Mesh] [CT]
 {'id': ['000429026'], 'title': ['Pelvis [Mesh] [CT]'], 'media_type': ['Mesh'], 'modality': ['MicroNanoXRayComputedTomography'], 'device': ['Perkin Elmer Quantum GX2'], ...
+https://www.morphosource.org/concern/media/000429026
+https://www.morphosource.org/assets/work-ff055336041c3f7d310ad69109eda4a887b16ec501f35afc0a547c4adb97ee72.png
 ```
 
 If the media id isn't found a `morphosource.api.ItemNotFound` exception will be raised.
