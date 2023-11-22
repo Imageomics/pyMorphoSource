@@ -108,7 +108,8 @@ This example uses many parameters to search for the first 4 media matching the c
 ```python
 from morphosource import search_media
 
-results = search_media("Chalcides",  media_type="Mesh", media_tag="pelvis", per_page=4, page=1)
+results = search_media("X-Ray",  taxonomy_gbif="Chalcides", media_type="Mesh", media_tag="pelvis",
+                       per_page=4, page=1)
 print("Found", results.pages["total_count"], "items")
 for media in results.items:
     print(media.id, media.title)
@@ -127,20 +128,26 @@ Found 50 items
 #### Get Single Media
 The `get_media()` function can be used to retrieve details about a single media object.
 
-In this example we fetch media with id "000429026".
+In this example we fetch media with id "000425163".
 The `data` property contains all fields returned from the MorphoSource API.
+The `get_website_url()` method returns a URL to view the media in the MorphoSource website.
+The `get_thumbnail_url()` method returns a URL for the media's thumbnail image.
 ```python
 from morphosource import get_media
 
-media = get_media(media_id="000429026")
+media = get_media(media_id="000425163")
 print(media.id, media.title)
 print(media.data)
+print(media.get_website_url())
+print(media.get_thumbnail_url())
 ```
 
 Example Output;
 ```console
-000429026 Pelvis [Mesh] [CT]
-{'id': ['000429026'], 'title': ['Pelvis [Mesh] [CT]'], 'media_type': ['Mesh'], 'modality': ['MicroNanoXRayComputedTomography'], 'device': ['Perkin Elmer Quantum GX2'], ...
+000425163 Humerus [Mesh] [CT]
+{'id': ['000425163'], 'title': ['Humerus [Mesh] [CT]'], 'media_type': ['Mesh'], 'modality': ['MicroNanoXRayComputedTomography'], 'device': ['Nikon Metrology XT H 225 ST'], ...
+https://www.morphosource.org/concern/media/000425163
+https://www.morphosource.org/downloads/000425163?file=thumbnail&t=1645803720
 ```
 
 If the media id isn't found a `morphosource.api.ItemNotFound` exception will be raised.
@@ -182,7 +189,7 @@ This example searches for biological specimens returning the first 4 physical ob
 from morphosource import search_objects, ObjectTypes
 
 results = search_objects("U.W,", object_type=ObjectTypes.BIOLOGICAL_SPECIMEN,
-                         taxonomy="Primates", media_type="Mesh",
+                         taxonomy_gbif="Primates", media_type="Mesh",
                          media_tag="Homo naledi", per_page=4, page=1)
 
 for item in results.items:

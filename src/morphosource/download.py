@@ -34,7 +34,7 @@ def get_download_media_zip_url(media_id, download_config):
     try:
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
-        return response.json()["response"]["media"]["download_url"][0]
+        return response.json()["response"]["media"]["download_url"]
     except HTTPError as err:
         if err.response.status_code == 404:
             raise RestrictedDownloadError(f"{RESTRICTED_DOWNLOAD_MSG} {media_id}")

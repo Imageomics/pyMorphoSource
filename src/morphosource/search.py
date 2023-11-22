@@ -3,7 +3,7 @@ import requests
 from morphosource.fetch import fetch_items, fetch_item
 from morphosource.exceptions import ItemNotFound
 from morphosource.download import download_media_bundle, get_download_media_zip_url, DownloadVisibility
-from morphosource.config import Endpoints
+from morphosource.config import Endpoints, WEBSITE_URL
 
 
 def _get(obj, name, unlist=True):
@@ -38,7 +38,13 @@ class Media(object):
         return get_download_media_zip_url(media_id=self.id, download_config=download_config)
 
     def get_website_url(self):
-        return f"https://www.morphosource.org/concern/media/{self.id}"
+        return f"{WEBSITE_URL}/concern/media/{self.id}"
+
+    def get_thumbnail_url(self):
+        file_thumbnail_url = _get(self.data, 'file_thumbnail_url')
+        if file_thumbnail_url:
+            return f"{WEBSITE_URL}{file_thumbnail_url}"
+        return None
 
 
 class PhysicalObject(object):
@@ -73,14 +79,14 @@ def create_facet_dict(**kwargs):
     params = {}
     for key, value in kwargs.items():
         if value:
-            facet_key = f"f[{key}][]"
+            facet_key = f"f.{key}"
             params[facet_key] = value
     return params
 
 
-def search_media(query=None, media_type=None, visibility=None, media_tag=None, per_page=None, page=None):
+def search_media(query=None, media_type=None, taxonomy_gbif=None, visibility=None, media_tag=None, per_page=None, page=None):
     params = create_facet_dict(
-        human_readable_media_type_ssim=media_type, publication_status_ssi=visibility, keyword_ssim=media_tag
+        media_type=media_type, taxonomy_gbif=taxonomy_gbif, publication_status=visibility, tag=media_tag
     )
     raw_items, facets, pages = fetch_items(
         url=Endpoints.MEDIA, query=query, params=params, per_page=per_page, page=page, items_name="media"
@@ -101,13 +107,13 @@ def get_media(media_id):
 
 
 def search_objects(
-    query=None, object_type=None, taxonomy=None, media_type=None, media_tag=None, per_page=None, page=None
+    query=None, object_type=None, taxonomy_gbif=None, media_type=None, media_tag=None, per_page=None, page=None
 ):
     params = create_facet_dict(
-        human_readable_type_sim=object_type,
-        external_taxonomy_ssim=taxonomy,
-        public_media_type_ssim=media_type,
-        public_media_keyword_ssim=media_tag,
+        object_type=object_type,
+        taxonomy_gbif=taxonomy_gbif,
+        media_type=media_type,
+        media_tag=media_tag
     )
     raw_items, facets, pages = fetch_items(
         url=Endpoints.PHYSICAL_OBJECTS,
