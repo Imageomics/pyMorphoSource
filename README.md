@@ -13,7 +13,7 @@ See [MorphoSource Terms of Use](https://www.morphosource.org/terms) for more det
 ## Installation
 
 ```console
-pip install --upgrade git+https://github.com/Imageomics/pyMorphoSource.git
+pip install --upgrade morphosource
 ```
 
 ## Setup
