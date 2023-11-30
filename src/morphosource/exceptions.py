@@ -4,3 +4,8 @@ class RestrictedDownloadError(Exception):
 
 class ItemNotFound(Exception):
     pass
+
+
+class MetadataMissingError(Exception):
+    pass
+

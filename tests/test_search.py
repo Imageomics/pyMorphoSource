@@ -2,7 +2,7 @@ import unittest
 import requests
 from unittest.mock import patch, Mock
 from morphosource.search import search_media, get_media, Media, Endpoints, ItemNotFound, \
-    get_object, ObjectTypes, search_objects
+    get_object, ObjectTypes, search_objects, MetadataMissingError
 from morphosource.download import DownloadVisibility
 from morphosource.search import Media
 
@@ -46,7 +46,14 @@ MS_CULTURAL_OBJECT = [{
     'title': ['YPM:ANT:131819 Spindle Whorl'],
     'type': ['Cultural Heritage Object'],
 }]
-
+MS_FILE_METADATA = {
+    'file_name': ['AMNH-196405-Macaca-tonkeana-hecki-teeth-DICOM.zip'],
+    'file_size': [1784225321],
+    'mime_type': ['application/zip'],
+    'contents_mime_type': ['application/dicom'], 
+    'date_uploaded': ['2020-10-21T00:48:47Z'],
+    'date_modified': ['2020-10-21T00:48:47Z']
+}
 
 class TestSearch(unittest.TestCase):
     @patch("morphosource.search.fetch_items")
@@ -229,3 +236,23 @@ class TestSearch(unittest.TestCase):
         media = Media(MS_MEDIA[1])
         url = media.get_thumbnail_url()
         self.assertEqual(url, None)
+
+    @patch("morphosource.search.fetch_item")
+    def test_get_file_metadata(self, mock_fetch_item):
+        mock_fetch_item.return_value = {"file_set": MS_FILE_METADATA}
+        media = Media(MS_MEDIA[0])
+        metadata = media.get_file_metadata()
+        self.assertEqual(metadata.file_name, "AMNH-196405-Macaca-tonkeana-hecki-teeth-DICOM.zip")
+        self.assertEqual(metadata.file_size, 1784225321)
+        self.assertEqual(metadata.mime_type, "application/zip")
+        self.assertEqual(metadata.contents_mime_type, "application/dicom")
+        self.assertEqual(metadata.data, MS_FILE_METADATA)
+
+    @patch("morphosource.search.fetch_item")
+    def test_get_file_metadata_empty_metadata(self, mock_fetch_item):
+        mock_fetch_item.return_value = {}
+        media = Media(MS_MEDIA[0])
+        with self.assertRaises(MetadataMissingError) as raised_exception:
+            media.get_file_metadata()
+        self.assertEqual(str(raised_exception.exception),
+                         "No metadata returned by MorphoSource for id: 000390223")
