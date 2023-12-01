@@ -142,7 +142,7 @@ print(media.get_website_url())
 print(media.get_thumbnail_url())
 ```
 
-Example Output;
+Example Output:
 ```console
 000425163 Humerus [Mesh] [CT]
 {'id': ['000425163'], 'title': ['Humerus [Mesh] [CT]'], 'media_type': ['Mesh'], 'modality': ['MicroNanoXRayComputedTomography'], 'device': ['Nikon Metrology XT H 225 ST'], ...
@@ -152,6 +152,29 @@ https://www.morphosource.org/downloads/000425163?file=thumbnail&t=1645803720
 
 If the media id isn't found a `morphosource.api.ItemNotFound` exception will be raised.
 
+#### Get Media Metadata
+The `Media` object method `get_file_metadata()` can be used to retrieve file metadata for the media object.
+
+In this example we fetch media with id "000425163" and lookup file metadata information. Note that the returned file size is given in bytes.
+The `data` property contains all fields returned from the MorphoSource API.
+```python
+from morphosource import get_media
+
+media = get_media(media_id="000425163")
+metadata = media.get_file_metadata()
+print("Filename:", metadata.file_name)
+print("File size:", metadata.file_size)
+print(metadata.data)
+```
+
+Example Output:
+```console
+Filename: Carettochelys_insculpta_KU-herps-158563_Humerus_right.ply
+File size: 2875371
+{...'point_count': ['64832'], 'face_count': ['131068'], 'has_uv_space': ['False'],...}
+```
+
+Some MorphoSource media have no file and thereby have no file metadata. If you attempt to retrieve metadata for such media a `MetadataMissingError` exception will be raised.
 
 ### Physical Objects
 In MorphoSource a physical object can be associated with multiple media. For example a specific turtle could have different scans of various body parts. The turtle will be represented as a physicial object and each scan will be represented as a media object.

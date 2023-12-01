@@ -1,7 +1,7 @@
 import os
 import requests
 from morphosource.fetch import fetch_items, fetch_item
-from morphosource.exceptions import ItemNotFound
+from morphosource.exceptions import ItemNotFound, MetadataMissingError
 from morphosource.download import download_media_bundle, get_download_media_zip_url, DownloadVisibility
 from morphosource.config import Endpoints, WEBSITE_URL
 
@@ -45,6 +45,18 @@ class Media(object):
         if file_thumbnail_url:
             return f"{WEBSITE_URL}{file_thumbnail_url}"
         return None
+
+    def get_file_metadata(self):
+        return get_media_file_metadata(self.id)
+
+
+class FileMetadata(object):
+    def __init__(self, data):
+        self.file_name = _get(data, "file_name")
+        self.file_size = _get(data, "file_size")
+        self.mime_type = _get(data, "mime_type")
+        self.contents_mime_type = _get(data, "contents_mime_type")
+        self.data = data
 
 
 class PhysicalObject(object):
@@ -103,6 +115,19 @@ def get_media(media_id):
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 404:
             raise ItemNotFound(f"No media found with id {media_id}")
+        raise err
+
+def get_media_file_metadata(media_id):
+    try:
+        url = f"{Endpoints.MEDIA}/{media_id}/file-metadata"
+        ret = fetch_item(url)
+        if not ret:
+            raise MetadataMissingError(f"No metadata returned by MorphoSource for id: {media_id}")
+        data = ret["file_set"]
+        return FileMetadata(data)
+    except requests.exceptions.HTTPError as err:
+        if err.response.status_code == 404:
+            raise ItemNotFound(f"No media file metadata found with id {media_id}")
         raise err
 
 
