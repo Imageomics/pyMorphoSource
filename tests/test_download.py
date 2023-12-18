@@ -35,6 +35,29 @@ class TestDownload(unittest.TestCase):
 
         # Check GET used to fetch file contents
         mock_requests.get.assert_called_with('someurl', headers={'Authorization': 'Secret'}, stream=True)
+        mock_requests.get.return_value.iter_content.assert_called_with(chunk_size=1048576)
+
+    @patch("morphosource.download.requests")
+    @patch('builtins.open', new_callable=mock_open)
+    def test_download_media_bundle_custom_chunk(self, mock_file, mock_requests):
+        download_config_1k = DownloadConfig(
+            api_key="Secret",
+            use_statement="Downloading this data as part of a research project.",
+            use_categories=["Research"],
+            chunk_size=1024
+        )
+
+        post_response = Mock()
+        mock_requests.post.return_value = post_response
+        post_response.json.return_value = {"response": {"media": {"download_url": "someurl"}}}
+        get_response = Mock()
+        get_response.iter_content.return_value = ["somedata"]
+        mock_requests.get.return_value = get_response
+
+        download_media_bundle(media_id="123", path="/tmp/123.zip", download_config=download_config_1k)
+
+        # Check response chunk size
+        mock_requests.get.return_value.iter_content.assert_called_with(chunk_size=1024)
 
     @patch("morphosource.download.requests")
     @patch('builtins.open', new_callable=mock_open)

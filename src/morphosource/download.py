@@ -5,14 +5,17 @@ from morphosource.exceptions import RestrictedDownloadError
 
 RESTRICTED_DOWNLOAD_MSG = """You do not have authorization to download this restricted media.
 Please visit https://www.morphosource.org and request download permission for media id:"""
+DOWNLOAD_CHUNK_SIZE =  1024 * 1024 # 1 MB
 
 
 class DownloadConfig(object):
-    def __init__(self, api_key, use_statement, use_categories=None, use_category_other=None):
+    def __init__(self, api_key, use_statement, use_categories=None, use_category_other=None,
+                 chunk_size=DOWNLOAD_CHUNK_SIZE):
         self.api_key = api_key
         self.use_statement = use_statement
         self.use_categories = use_categories
         self.use_category_other = use_category_other
+        self.chunk_size = chunk_size
         if not self.use_categories and not self.use_category_other:
             raise ValueError("Either use_categories or use_category_other must have a value.")
 
@@ -41,7 +44,7 @@ def get_download_media_zip_url(media_id, download_config):
         raise err
 
 
-def download_file(url, path, api_key, chunk_size=128):
+def download_file(url, path, api_key, chunk_size):
     headers = {"Authorization": api_key}
     download_response = requests.get(url, headers=headers, stream=True)
     with open(path, 'wb') as fd:
@@ -51,4 +54,5 @@ def download_file(url, path, api_key, chunk_size=128):
 
 def download_media_bundle(media_id, path, download_config):
     download_url = get_download_media_zip_url(media_id=media_id, download_config=download_config)
-    download_file(url=download_url, api_key=download_config.api_key, path=path)
+    download_file(url=download_url, api_key=download_config.api_key, path=path,
+                  chunk_size=download_config.chunk_size)
